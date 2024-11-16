@@ -52,15 +52,16 @@ const Profile = ({ handleCloseOpenProfile }) => {
     }
 
     const handleUpdateName = (e) => {
-        const data = {
-            id: auth.reqUser?.id,
-            token: localStorage.getItem("token"),
-            data: { fullName: userName }
+        if (e.key === "Enter") {
+            const data = {
+                id: auth.reqUser?.id,
+                token: localStorage.getItem("token"),
+                data: { fullName: userName }
+            };
+            dispatch(updateUser(data));
+            setFlag(false);
         }
-        if (e.target.key === "Enter") {
-            dispatch(updateUser(data))
-        }
-    }
+    };
 
     return (
         <div className="w-full h-full">

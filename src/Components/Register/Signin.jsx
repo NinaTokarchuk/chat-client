@@ -15,9 +15,9 @@ const Signin = () => {
         console.log("handleSubmit");
         console.log(inputData);
         dispatch(login(inputData));
-        if (auth.reqUser?.fullName) {
-            setOpenSnackBar(true);
-        }
+        // if (auth.reqUser?.fullName) {
+        //     setOpenSnackBar(true);
+        // }
     }
     const dispatch = useDispatch();
     const token = localStorage.getItem("token");
@@ -35,6 +35,7 @@ const Signin = () => {
 
     useEffect(() => {
         if (auth.reqUser?.fullName) {
+            setOpenSnackBar(true);
             navigate("/")
         }
     }, [auth.reqUser])

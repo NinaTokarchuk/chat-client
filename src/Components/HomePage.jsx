@@ -18,8 +18,9 @@ import { currentUser, logout, searchUser } from '../Redux/Auth/Action'
 import { createChat, getUsersChat } from '../Redux/Chat/Action'
 import { createMessage, getAllMessages } from '../Redux/Message/Action'
 import SockJs from "sockjs-client/dist/sockjs";
-// import * as Stomp from 'stompjs';
 import { over } from 'stompjs'
+import EmojiPicker from 'emoji-picker-react';
+
 var global = window;
 const HomePage = () => {
     const { auth, chat, message } = useSelector(store => store);
@@ -38,6 +39,44 @@ const HomePage = () => {
     const dispatch = useDispatch();
     const messageContainerRef = useRef(null);
     const [lastMessages, setLastMessages] = useState({});
+    const categoryConfig = [
+        {
+            category: 'suggested',
+            name: 'Часто використані'  // Ukrainian for 'Frequently Used'
+        },
+        {
+            category: 'smileys_people',
+            name: 'Смайли та люди'  // Ukrainian for 'Smileys & People'
+        },
+        {
+            category: 'animals_nature',
+            name: 'Тварини та природа'  // Ukrainian for 'Animals & Nature'
+        },
+        {
+            category: 'food_drink',
+            name: 'Їжа та напої'  // Ukrainian for 'Food & Drink'
+        },
+        {
+            category: 'travel_places',
+            name: 'Подорожі та місця'  // Ukrainian for 'Travel & Places'
+        },
+        {
+            category: 'activities',
+            name: 'Активності'  // Ukrainian for 'Activities'
+        },
+        {
+            category: 'objects',
+            name: 'Об’єкти'  // Ukrainian for 'Objects'
+        },
+        {
+            category: 'symbols',
+            name: 'Символи'  // Ukrainian for 'Symbols'
+        },
+        {
+            category: 'flags',
+            name: 'Прапори'  // Ukrainian for 'Flags'
+        }
+    ];
 
     useEffect(() => {
         // Scroll to bottom whenever messages change
@@ -45,59 +84,6 @@ const HomePage = () => {
             messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
         }
     }, [messages]);
-
-    // const onError = (error) => {
-    //     console.error("Connection error:", error);
-    // }
-    // const onConnect = () => {
-    //     setIsConnect(true);
-    // }
-
-    // const connect = () => {
-    //     const sock = new SockJS("http://localhost:8080/ws");
-    //     const temp = over(sock);
-    //     setStompClient(temp);
-    //     console.log("set Stomp Client to = ", stompClient);
-    //     const headers = {
-    //         Authorization: `Bearer ${token}`
-    //     }
-    //     temp.connect(headers, onConnect, onError);
-    // }
-
-    // function getCookie(name) {
-    //     const value = `; ${document.cookie}`;
-    //     const parts = value.split(`; ${name}=`);
-    //     if (parts.length === 2) {
-    //         return parts.pop().split(";").shift();
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     connect();
-    // })
-    // useEffect(() => {
-    //     if (message.newMessage && stompClient) {
-    //         setMessages([...messages, message.newMessage]);
-    //         stompClient?.send("/app/message", {}, JSON.stringify(message.newMessage));
-    //     }
-    // }, [message.newMessage, messages, stompClient])
-
-    // const onMessageReceive = (payload) => {
-    //     console.log("receive message ", JSON.parse(payload.body));
-    //     const receivedMessage = JSON.parse(payload.body);
-    //     setMessages([...messages, receivedMessage]);
-    // }
-
-    // useEffect(() => {
-    //     if (isConnect && stompClient && auth.reqUser && currentChat) {
-    //         console.log("IS CONNECT ", isConnect);
-    //         //"/group/"+ currentChat.id.toString()
-    //         const subscription = stompClient.subscribe("/group/public", onMessageReceive);
-    //         return () => {
-    //             subscription.unsubscribe();
-    //         }
-    //     }
-    // }, [isConnect, stompClient, auth.reqUser, currentChat, onMessageReceive]);
 
     // Function to establish a WebSocket connection
     const connect = () => {
@@ -170,13 +156,11 @@ const HomePage = () => {
 
     // Effect to handle sending a new message via WebSocket
     useEffect(() => {
-        if (message.newMessage && stompClient) {
+        if (message.newMessage && stompClient && isConnected) {
             stompClient.send("/app/message", {}, JSON.stringify(message.newMessage));
             setMessages((prevMessages) => [...prevMessages, message.newMessage]);
         }
     }, [message.newMessage, stompClient]);
-
-
 
     useEffect(() => {
         setMessages(message.messages);
@@ -189,6 +173,8 @@ const HomePage = () => {
         console.log("createNEW MESSAGE: ", content)
         dispatch(createMessage({ token, data: { chatId: currentChat.id, content: content } }))
     };
+
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     const handleClickOnChatCard = (userId) => {
         dispatch(createChat({ token, data: userId }));
@@ -207,11 +193,13 @@ const HomePage = () => {
     }, [currentChat, message.newMessage])
 
     const handleNavigate = () => {
-        // navigate (/profile)
+        handleClose();
+        setCurrentChat(null);
         setIsProfile(true);
     }
     const handleCloseOpenProfile = () => {
         setIsProfile(false);
+        handleClose();
     }
     const handleClick = (e) => {
         setAnchorEl(e.target);
@@ -221,6 +209,8 @@ const HomePage = () => {
     };
     const handleCreateGroup = () => {
         setIsGroup(true);
+        setCurrentChat(null);
+        handleClose();
     }
 
     const disconnect = () => {
@@ -236,6 +226,7 @@ const HomePage = () => {
         dispatch(logout());
         disconnect();
         navigate("/signup");
+        handleClose();
     }
 
     useEffect(() => {
@@ -278,13 +269,21 @@ const HomePage = () => {
             day: "2-digit",
             hour: "2-digit",
             minute: "2-digit",
-            // second: "2-digit",
-            hour12: false, // Use 24-hour format
-            timeZone: "Europe/Kiev" // Set the timezone to Kyiv (Kiev)
+            hour12: false,
+            timeZone: "Europe/Kiev"
         };
         return new Date(timestamp).toLocaleDateString(undefined, options);
     };
-    console.log("current chat ", currentChat);
+
+    const handleEmojiClick = (emojiObject) => {
+        setContent(content + emojiObject.emoji);
+        setShowEmojiPicker(false);
+    };
+
+    const toggleEmojiPicker = () => {
+        setShowEmojiPicker(!showEmojiPicker);
+    };
+
     return (
         <div className='relative'>
             <div className='w-full py-14 bg-[#724bb9]'></div>
@@ -329,10 +328,15 @@ const HomePage = () => {
                                             MenuListProps={{
                                                 'aria-labelledby': 'basic-button',
                                             }}
+                                            sx={{
+                                                '& .MuiPaper-root': { // Targeting the Paper component inside the Menu
+                                                    backgroundColor: '#724bb9',
+                                                }
+                                            }}
                                         >
-                                            <MenuItem onClick={handleClose}>Profile</MenuItem>
-                                            <MenuItem onClick={handleCreateGroup}>Create Group</MenuItem>
-                                            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                                            <MenuItem sx={{ backgroundColor: '#724bb9', color: '#121212' }} onClick={handleNavigate}>Профіль</MenuItem>
+                                            <MenuItem sx={{ backgroundColor: '#724bb9', color: '#121212' }} onClick={handleCreateGroup}>Створити групу</MenuItem>
+                                            <MenuItem sx={{ backgroundColor: '#724bb9', color: '#121212' }} onClick={handleLogout}>Вийти</MenuItem>
                                         </Menu>
                                     </div>
 
@@ -478,15 +482,33 @@ const HomePage = () => {
                                         />
                                     )
                                 }
+                                {
+                                    showEmojiPicker && (
+                                        <div ref={messageContainerRef}>
+                                            <EmojiPicker onEmojiClick={e => handleEmojiClick(e)}
+                                                pickerStyle={{ position: 'absolute', bottom: '50px', right: '0px' }}
+                                                theme="dark"
+                                                categories={categoryConfig}
+                                                previewConfig={{
+                                                    defaultEmoji: "1f601", // Change the default emoji (e.g., grinning face)
+                                                    defaultCaption: "Який у вас настрій?", // Custom message in Ukrainian
+                                                    showPreview: true // Set to false to hide the preview
+                                                }}
+                                                searchPlaceholder="Шукати" />
+                                            {/* <IoClose
+                                                className="cursor-pointer"
+                                                onClick={toggleEmojiPicker}
+                                                style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '24px' }} /> */}
+                                        </div>
+                                    )}
                             </div>
                         </div>
                         {/*  footer part*/}
                         <div className='footer bg-[#47444c] absolute bottom-0 w-full py-3 text-2xl'>
                             <div className='flex justify-between items-center px-5 relative'>
-
-                                <BsEmojiSmile className='cursor-pointer' />
+                                <BsEmojiSmile className='cursor-pointer' onClick={toggleEmojiPicker} />
+                                {/*  */}
                                 <ImAttachment />
-
                                 <input
                                     className='py-2 outline-none border-none bg-white pl-4 rounded-md w-[85%]'
                                     type='text'
@@ -501,8 +523,8 @@ const HomePage = () => {
                                     }}
                                 />
                                 <BsMicFill />
+                                {/* Other icons and inputs */}
                             </div>
-
                         </div>
                     </div>
                 }

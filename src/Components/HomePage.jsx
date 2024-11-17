@@ -22,7 +22,6 @@ import { over } from 'stompjs'
 import EmojiPicker from 'emoji-picker-react';
 import VoiceToChat from './VoiceToChat/VoiceToChat'
 
-var global = window;
 const HomePage = () => {
     const { auth, chat, message } = useSelector(store => store);
     const [stompClient, setStompClient] = useState(null);

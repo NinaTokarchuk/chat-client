@@ -77,12 +77,12 @@ const NewGroup = ({ groupMember, setIsGroup }) => {
             </div>
             <div className="w-full flex justify-between items-center py-2 px-5">
                 <input type="text"
-                    className="w-full outline-none border-b-2 border-[#724bb9] px-2 bg-transparent text-black"
+                    className="w-full outline-none border-b-2 border-[#724bb9] px-2 bg-transparent text-white"
                     placeholder="Тема групи"
                     value={groupName}
                     onChange={(e) => setGroupName(e.target.value)} />
             </div>
-            {groupName && <div className="py-10 bg-[#717171] flex items-center justify-center">
+            {groupName && <div className="py-10 bg-[#1c1821] flex items-center justify-center">
                 <Button onClick={handleCreateGroup}>
 
                     <div className="bg-[#724bb9] rounded-full p-4">

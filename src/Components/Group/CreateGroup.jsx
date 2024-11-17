@@ -28,7 +28,7 @@ const CreateGroup = ({ setIsGroup }) => {
         navigate("/")
     }
     return (
-        <div className="w-full h-full">
+        <div className="w-full h-full bg-[#1c1821]">
             {
                 !newGroup && (
                     <div>

@@ -49,10 +49,14 @@ const NewGroup = ({ groupMember, setIsGroup }) => {
         setIsGroup(false);
     }
 
+    const handleClick = () => {
+        setIsGroup(false);
+    }
+
     return (
         <div className="w-full h-full">
             <div className="flex items-center space-x-10 bg-[#724bb9] text-white pt-16 px-10 pb-5">
-                <BsArrowLeft className="cursor-pointer text-2xl font-bold" />
+                <BsArrowLeft onClick={handleClick} className="cursor-pointer text-2xl font-bold" />
                 <p className="text-xl font-semibold">Нова група</p>
             </div>
             <div className="flex flex-col justify-center items-center my-12">

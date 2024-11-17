@@ -1,7 +1,7 @@
 import React from "react"
 
 const ChatCard = ({ userImg, name, lastMessage }) => {
-    // Function to format a timestamp to a readable date
+
     const formatTimestamp = (timestamp) => {
         if (!timestamp) return "";
 
@@ -11,9 +11,8 @@ const ChatCard = ({ userImg, name, lastMessage }) => {
             day: "2-digit",
             hour: "2-digit",
             minute: "2-digit",
-            // second: "2-digit",
-            hour12: false, // Use 24-hour format
-            timeZone: "Europe/Kiev" // Set the timezone to Kyiv (Kiev)
+            hour12: false,
+            timeZone: "Europe/Kiev"
         };
         return new Date(timestamp).toLocaleDateString(undefined, options);
     };
@@ -30,9 +29,6 @@ const ChatCard = ({ userImg, name, lastMessage }) => {
 
                 <div className="flex justify-between items-center">
                     <p className="text-[#8b8b8b]">{lastMessage ? lastMessage.content : ""}</p>
-                    {/* <div className="flex space-x-2 items-center">
-                        <p className="text-xs py-1 px-2 text-[#47444c] bg-[#9371c9] rounded-full">5</p>
-                    </div> */}
                 </div>
 
             </div>

@@ -10,9 +10,8 @@ const MessageCard = ({ isReqUserMessage, content, timestamp, username, isGroupMe
             day: "2-digit",
             hour: "2-digit",
             minute: "2-digit",
-            // second: "2-digit",
-            hour12: false, // Use 24-hour format
-            timeZone: "Europe/Kiev" // Set the timezone to Kyiv (Kiev)
+            hour12: false,
+            timeZone: "Europe/Kiev"
         };
         return new Date(timestamp).toLocaleDateString(undefined, options);
     };

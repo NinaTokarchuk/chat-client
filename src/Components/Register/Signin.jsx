@@ -3,11 +3,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { currentUser, login } from "../../Redux/Auth/Action";
+import { clearLoginError, currentUser, login } from "../../Redux/Auth/Action";
 import { useDispatch, useSelector } from "react-redux";
 
 const Signin = () => {
     const [openSnackBar, setOpenSnackBar] = useState(false);
+    const [snackBarMessage, setSnackBarMessage] = useState('');
+    const [snackBarSeverity, setSnackBarSeverity] = useState('success');
     const [inputData, setInputData] = useState({ email: "", password: "" });
     const { auth } = useSelector(store => store);
     const handleSubmit = (e) => {
@@ -15,9 +17,6 @@ const Signin = () => {
         console.log("handleSubmit");
         console.log(inputData);
         dispatch(login(inputData));
-        // if (auth.reqUser?.fullName) {
-        //     setOpenSnackBar(true);
-        // }
     }
     const dispatch = useDispatch();
     const token = localStorage.getItem("token");
@@ -35,10 +34,18 @@ const Signin = () => {
 
     useEffect(() => {
         if (auth.reqUser?.fullName) {
+            setSnackBarMessage('Вхід успішний!');
+            setSnackBarSeverity('success');
             setOpenSnackBar(true);
-            navigate("/")
+            navigate("/");
+        } else if (auth.loginError && !localStorage.getItem("token")) {
+            setSnackBarMessage('Невірний логін або пароль.');
+            setSnackBarSeverity('error');
+            setOpenSnackBar(true);
+            dispatch(clearLoginError());
         }
-    }, [auth.reqUser])
+    }, [auth.reqUser, auth.loginError]);
+
     return (
         <div>
             <div className="flex justify-center h-screen items-center">
@@ -83,9 +90,9 @@ const Signin = () => {
                     onClose={handleSnackbarClose}>
                     <Alert
                         onClose={handleSnackbarClose}
-                        severity="success"
+                        severity={snackBarSeverity}
                         sx={{ width: '100%' }} >
-                        Вхід успішний!
+                        {snackBarMessage}
                     </Alert>
                 </Snackbar>
             </div>

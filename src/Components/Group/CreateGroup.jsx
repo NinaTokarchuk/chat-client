@@ -23,7 +23,7 @@ const CreateGroup = ({ setIsGroup }) => {
     const handleSearch = (keyword) => {
         dispatch(searchUser({ keyword }, token));
     }
-    const handleClick=()=> {
+    const handleClick = () => {
         setIsGroup(false);
         navigate("/")
     }
@@ -39,11 +39,12 @@ const CreateGroup = ({ setIsGroup }) => {
                             <p className="text-xl font-semibold">Додати учасника групи</p>
                         </div>
                         <div className="relative bg-[#1c1821] py-4 px-3">
-                            <div className="flex space-x-2 flex-wrap space-y-1">
+                            <div className="flex space-x-2 flex-wrap">
                                 {
-                                    groupMember.size > 0 && Array.from(groupMember).map((item) => <SelectedMember handleRemoveMember={
-                                        () => handleRemoveMember(item)
-                                    } member={item} />)
+                                    groupMember.size > 0 && Array.from(groupMember)
+                                        .map((item) => <SelectedMember handleRemoveMember={
+                                            () => handleRemoveMember(item)
+                                        } member={item} />)
                                 }
                             </div>
                             <input type="text" onChange={(e) => {
@@ -59,16 +60,19 @@ const CreateGroup = ({ setIsGroup }) => {
                         <div className="bg-[#1c1821] overflow-y-scroll h-[50.2vh]">
                             {query &&
                                 Array.from(auth.searchUser)?.map((item) =>
-                                (<div onClick={() => {
-                                    groupMember.add(item);
-                                    setGroupMember(groupMember);
-                                    setQuery("");
-                                }}
-                                    key={item?.id}
-                                >
-                                    <hr />
-                                    <ChatCard userImg={item.profilePicture} name={item.fullName} />
-                                </div>)
+                                (
+                                    <div onClick={() => {
+                                        const newSet = new Set(groupMember);
+                                        newSet.add(item);
+                                        setGroupMember(newSet);
+                                        setQuery("");
+                                    }}
+                                        key={item?.id}
+                                    >
+                                        <hr />
+                                        <ChatCard userImg={item.profilePicture} name={item.fullName} />
+                                    </div>
+                                )
                                 )}
 
                         </div>

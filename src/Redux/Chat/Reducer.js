@@ -1,4 +1,4 @@
-import { CREATE_CHAT, CREATE_GROUP, GET_USERS_CHAT } from "./ActionType"
+import { CREATE_CHAT, CREATE_GROUP, DELETE_CHAT_SUCCESS, GET_USERS_CHAT } from "./ActionType"
 
 const initialValue = {
     chats: [],
@@ -14,6 +14,9 @@ export const chatReducer = (store = initialValue, { type, payload }) => {
     }
     else if (type === GET_USERS_CHAT) {
         return { ...store, chats: payload }
+    }
+    else if (type === DELETE_CHAT_SUCCESS) {
+        return { ...store, chats: store.chats.filter(chat => chat.id !== payload) }
     }
     return store;
 }

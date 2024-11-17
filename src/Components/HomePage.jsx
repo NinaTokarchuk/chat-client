@@ -15,7 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import CreateGroup from './Group/CreateGroup'
 import { useDispatch, useSelector } from 'react-redux'
 import { currentUser, logout, searchUser } from '../Redux/Auth/Action'
-import { createChat, getUsersChat } from '../Redux/Chat/Action'
+import { createChat, getUsersChat, deleteChat } from '../Redux/Chat/Action'
 import { createMessage, getAllMessages } from '../Redux/Message/Action'
 import SockJs from "sockjs-client/dist/sockjs";
 import { over } from 'stompjs'
@@ -33,12 +33,17 @@ const HomePage = () => {
     const [isProfile, setIsProfile] = useState(false);
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorElMain, setAnchorElMain] = useState(null);
+    const [anchorElChat, setAnchorElChat] = useState(null);
     const open = Boolean(anchorEl);
+    const openMain = Boolean(anchorElMain);
+    const openChat = Boolean(anchorElChat);
     const [isGroup, setIsGroup] = useState(false);
     const [isChat, setIsChat] = useState(false);
     const dispatch = useDispatch();
     const messageContainerRef = useRef(null);
     const [lastMessages, setLastMessages] = useState({});
+
     const categoryConfig = [
         {
             category: 'suggested',
@@ -192,25 +197,36 @@ const HomePage = () => {
         }
     }, [currentChat, message.newMessage])
 
+    const handleClickMain = (event) => {
+        setAnchorElMain(event.target);
+    };
+
+    const handleCloseMain = () => {
+        setAnchorElMain(null);
+    };
+
+    const handleClickChat = (event) => {
+        setAnchorElChat(event.target);
+    };
+
+    const handleCloseChat = () => {
+        setAnchorElChat(null);
+    };
+
     const handleNavigate = () => {
-        handleClose();
+        handleCloseMain();
         setCurrentChat(null);
         setIsProfile(true);
     }
     const handleCloseOpenProfile = () => {
         setIsProfile(false);
-        handleClose();
+        handleCloseMain();
     }
-    const handleClick = (e) => {
-        setAnchorEl(e.target);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+
     const handleCreateGroup = () => {
         setIsGroup(true);
         setCurrentChat(null);
-        handleClose();
+        handleCloseMain();
     }
 
     const disconnect = () => {
@@ -226,7 +242,12 @@ const HomePage = () => {
         dispatch(logout());
         disconnect();
         navigate("/signup");
-        handleClose();
+        setCurrentChat(null);
+    }
+
+    const handleDeleteChat = (chatId) => {
+        dispatch(deleteChat({ token, chatId: chatId }));
+        setCurrentChat(null);
     }
 
     useEffect(() => {
@@ -318,18 +339,18 @@ const HomePage = () => {
                                             aria-controls={open ? 'basic-menu' : undefined}
                                             aria-haspopup="true"
                                             aria-expanded={open ? 'true' : undefined}
-                                            onClick={handleClick}
+                                            onClick={handleClickMain}
                                             className='fill-[#312d36]' />
                                         <Menu
                                             id="basic-menu"
-                                            anchorEl={anchorEl}
-                                            open={open}
-                                            onClose={handleClose}
+                                            anchorEl={anchorElMain}
+                                            open={openMain}
+                                            onClose={handleCloseMain}
                                             MenuListProps={{
                                                 'aria-labelledby': 'basic-button',
                                             }}
                                             sx={{
-                                                '& .MuiPaper-root': { // Targeting the Paper component inside the Menu
+                                                '& .MuiPaper-root': {
                                                     backgroundColor: '#724bb9',
                                                 }
                                             }}
@@ -463,8 +484,32 @@ const HomePage = () => {
                                     </p>
                                 </div>
                                 <div className='py-3 flex space-x4 items-center px-3'>
-                                    <AiOutlineSearch />
-                                    <BsThreeDotsVertical />
+                                    {/* <AiOutlineSearch /> */}
+                                    {currentChat.createdBy?.id === auth.reqUser?.id &&
+                                        <div>
+                                            <BsThreeDotsVertical
+                                                id="chat-button"
+                                                aria-controls={open ? 'chat-menu' : undefined}
+                                                aria-haspopup="true"
+                                                aria-expanded={open ? 'true' : undefined}
+                                                onClick={handleClickChat} />
+                                            <Menu
+                                                id="chat-menu"
+                                                anchorEl={anchorElChat}
+                                                open={openChat}
+                                                onClose={handleCloseChat}
+                                                MenuListProps={{
+                                                    'aria-labelledby': 'chat-button',
+                                                }}
+                                                sx={{
+                                                    '& .MuiPaper-root': {
+                                                        backgroundColor: '#a384d1',
+                                                    }
+                                                }}
+                                            >
+                                                <MenuItem sx={{ backgroundColor: '#a384d1', color: '#121212' }} onClick={() => handleDeleteChat(currentChat.id)}>Видалити чат</MenuItem>
+                                            </Menu>
+                                        </div>}
                                 </div>
                             </div>
                         </div>
@@ -507,9 +552,9 @@ const HomePage = () => {
                         <div className='footer bg-[#47444c] absolute bottom-0 w-full py-3 text-2xl'>
                             <div className='flex justify-between items-center px-5 relative'>
                                 <BsEmojiSmile className='cursor-pointer' onClick={toggleEmojiPicker} />
-                                {/*  */}
                                 <ImAttachment />
-                                <input
+                                <textarea
+                                    rows='1'
                                     className='py-2 outline-none border-none bg-white pl-4 rounded-md w-[85%]'
                                     type='text'
                                     onChange={(e) => setContent(e.target.value)}
@@ -523,7 +568,6 @@ const HomePage = () => {
                                     }}
                                 />
                                 <BsMicFill />
-                                {/* Other icons and inputs */}
                             </div>
                         </div>
                     </div>

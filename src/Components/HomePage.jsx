@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { AiOutlineSearch } from 'react-icons/ai'
 import { BiCommentDetail } from 'react-icons/bi'
-import { BsEmojiSmile, BsFilter, BsMicFill, BsThreeDotsVertical } from 'react-icons/bs'
+import { BsEmojiSmile, BsFilter, BsMicFill, BsFillStopFill, BsThreeDotsVertical } from 'react-icons/bs'
 import { TbCircleDashed } from 'react-icons/tb'
 import ChatCard from './ChatCard/ChatCard'
 import MessageCard from './MessageCard/MessageCard'
@@ -20,6 +20,7 @@ import { createMessage, getAllMessages } from '../Redux/Message/Action'
 import SockJs from "sockjs-client/dist/sockjs";
 import { over } from 'stompjs'
 import EmojiPicker from 'emoji-picker-react';
+import VoiceToChat from './VoiceToChat/VoiceToChat'
 
 var global = window;
 const HomePage = () => {
@@ -305,6 +306,24 @@ const HomePage = () => {
         setShowEmojiPicker(!showEmojiPicker);
     };
 
+    const { isListening, transcript, startListening, stopListening } = VoiceToChat({ continuous: false });
+
+    const startStopListening = () => {
+        isListening ? stopVoiceInput() : startListening();
+    }
+
+    const stopVoiceInput = () => {
+        console.log(transcript)
+        if(content === "") {
+            setContent(transcript);
+        }
+        else {
+            setContent(content + " " + transcript);
+        }
+        console.log("content: ", content);
+        stopListening();
+    }
+
     return (
         <div className='relative'>
             <div className='w-full py-14 bg-[#724bb9]'></div>
@@ -455,10 +474,10 @@ const HomePage = () => {
                 {/*default chatapp page */}
                 {!currentChat && <div className='w-[70%] flex flex-col items-center justify-center h-full'>
                     <div className='max-w-[70%] text-center'>
-                        <img src="/images/By Nina Babii (1).png" alt="" />
+                        <img src="/images/ChatifyLogo.png" alt="" />
                         <h1 className='text-4xl text-[#835ec1]'>Чат застосунок</h1>
-                        <p className='my-9 text-[#724bb9]'>Надсилай і отримуй повідомлення без мережі.
-                            <br />Використовуй на 4 різних девайсах і одному телефоні одночасно
+                        <p className='my-9 text-[#724bb9]'>Надсилай і отримуй повідомлення. Створюй групи.
+                            <br />Використовуй перетворення голосу в текст.
                         </p>
                     </div>
                 </div>
@@ -559,7 +578,9 @@ const HomePage = () => {
                                     type='text'
                                     onChange={(e) => setContent(e.target.value)}
                                     placeholder='Введіть повідомлення'
-                                    value={content}
+                                    disabled={isListening}
+                                    value={isListening ?
+                                        content + (transcript.length ? (content.length ? ' ' : '') + transcript : '') : content}
                                     onKeyPress={(e) => {
                                         if (e.key === 'Enter') {
                                             handleCreateNewMessage();
@@ -567,7 +588,10 @@ const HomePage = () => {
                                         }
                                     }}
                                 />
-                                <BsMicFill />
+                                {!isListening && <BsMicFill onClick={startStopListening} />
+                                }
+                                {isListening && <BsFillStopFill onClick={startStopListening}/>
+                                }
                             </div>
                         </div>
                     </div>

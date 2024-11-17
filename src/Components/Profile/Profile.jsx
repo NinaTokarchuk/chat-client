@@ -90,13 +90,13 @@ const Profile = ({ handleCloseOpenProfile }) => {
                 {
                     flag && <div className="w-full flex justify-between items-center py-2">
                         <input onKeyPress={handleUpdateName} onChange={handleChange} className="w-[80%] outline-none border-b-2 border-blue-700 p-2" type="text" placeholder="Введіть своє ім'я " />
-                        <BsCheck2 onClick={handleCheckClick} className="stroke-black fill-black cursor-pointer text-2xl" />
+                        <BsCheck2 onClick={handleCheckClick} className="stroke-[[#121212] fill-[[#121212] cursor-pointer text-2xl" />
                     </div>
                 }
             </div>
 
             <div className="px-3 my-5">
-                <p py-10>Це ім'я буде видиме для тих, хто приєднується до чат-застосунку</p>
+                <p py-10 className="text-[#121212]">Це ім'я буде видиме для тих, хто приєднується до чат-застосунку</p>
             </div>
         </div>
     )

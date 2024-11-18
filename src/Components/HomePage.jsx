@@ -23,19 +23,17 @@ import EmojiPicker from 'emoji-picker-react';
 import VoiceToChat from './VoiceToChat/VoiceToChat'
 
 const HomePage = () => {
-    const { auth, chat, message } = useSelector(store => store);
+    const { auth, chat, message } = useSelector(state => state);
     const [stompClient, setStompClient] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [messages, setMessages] = useState([]);
-    const [querys, setQuerys] = useState(null)
+    const [queries, setQueries] = useState(null)
     const [currentChat, setCurrentChat] = useState(null)
     const token = localStorage.getItem("token");
     const [isProfile, setIsProfile] = useState(false);
     const navigate = useNavigate();
-    const [anchorEl, setAnchorEl] = useState(null);
     const [anchorElMain, setAnchorElMain] = useState(null);
     const [anchorElChat, setAnchorElChat] = useState(null);
-    const open = Boolean(anchorEl);
     const openMain = Boolean(anchorElMain);
     const openChat = Boolean(anchorElChat);
     const [isGroup, setIsGroup] = useState(false);
@@ -47,121 +45,110 @@ const HomePage = () => {
     const categoryConfig = [
         {
             category: 'suggested',
-            name: 'Часто використані'  // Ukrainian for 'Frequently Used'
+            name: 'Часто використані'
         },
         {
             category: 'smileys_people',
-            name: 'Смайли та люди'  // Ukrainian for 'Smileys & People'
+            name: 'Смайли та люди'
         },
         {
             category: 'animals_nature',
-            name: 'Тварини та природа'  // Ukrainian for 'Animals & Nature'
+            name: 'Тварини та природа'
         },
         {
             category: 'food_drink',
-            name: 'Їжа та напої'  // Ukrainian for 'Food & Drink'
+            name: 'Їжа та напої'
         },
         {
             category: 'travel_places',
-            name: 'Подорожі та місця'  // Ukrainian for 'Travel & Places'
+            name: 'Подорожі та місця'
         },
         {
             category: 'activities',
-            name: 'Активності'  // Ukrainian for 'Activities'
+            name: 'Активності'
         },
         {
             category: 'objects',
-            name: 'Об’єкти'  // Ukrainian for 'Objects'
+            name: 'Об’єкти'
         },
         {
             category: 'symbols',
-            name: 'Символи'  // Ukrainian for 'Symbols'
+            name: 'Символи'
         },
         {
             category: 'flags',
-            name: 'Прапори'  // Ukrainian for 'Flags'
+            name: 'Прапори'
         }
     ];
 
     useEffect(() => {
-        // Scroll to bottom whenever messages change
         if (messageContainerRef.current) {
             messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
         }
     }, [messages]);
 
-    // Function to establish a WebSocket connection
     const connect = () => {
         const sock = new SockJs("http://localhost:8080/ws");
-        const temp = over(sock);
-        setStompClient(temp);
+        const stomp = over(sock);
+        setStompClient(stomp);
 
         const headers = {
             Authorization: `Bearer ${token}`,
             "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
         };
 
-        // Connect to WebSocket server
-        temp.connect(headers, onConnect, onError);
+        stomp.connect(headers, onConnect, onError);
     };
 
-    // Function to get a specific cookie by name
     function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) {
-            return parts.pop().split(";").shift();
+        const val = `; ${document.cookie}`;
+        const cookieParts = val.split(`; ${name}=`);
+        if (cookieParts.length === 2) {
+            return cookieParts.pop().split(";").shift();
         }
     }
 
-    // Callback for WebSocket connection error
     const onError = (error) => {
-        console.log("on error ", error);
+        console.log("On Error ", error);
     };
 
-    // Callback for successful WebSocket connection
     const onConnect = () => {
         setIsConnected(true);
 
-        // Subscribe to the current chat messages based on the chat type
         if (stompClient && currentChat) {
-            if (currentChat.isGroupChat) {
-                // Subscribe to group chat messages
-                stompClient.subscribe(`/group/${currentChat?.id}`, onMessageReceive);
+            if (!currentChat.isGroupChat) {
+                stompClient
+                    .subscribe(`/user/${currentChat?.id}`, onMessageReceive);
             } else {
-                // Subscribe to direct user messages
-                stompClient.subscribe(`/user/${currentChat?.id}`, onMessageReceive);
+                stompClient
+                    .subscribe(`/group/${currentChat?.id}`, onMessageReceive);
             }
         }
     };
 
-    // Callback to handle received messages from WebSocket
     const onMessageReceive = (payload) => {
-        const receivedMessage = JSON.parse(payload.body);
-        setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+        const mess = JSON.parse(payload.body);
+        setMessages((prevMessages) => [...prevMessages, mess]);
     };
 
-    // Effect to establish a WebSocket connection
     useEffect(() => {
         connect();
     }, []);
 
-    // Effect to subscribe to a chat when connected
     useEffect(() => {
         if (isConnected && stompClient && currentChat?.id) {
-            const subscription = currentChat.isGroupChat
+            const subscr = currentChat.isGroupChat
                 ? stompClient.subscribe(`/group/${currentChat.id}`, onMessageReceive)
                 : stompClient.subscribe(`/user/${currentChat.id}`, onMessageReceive);
 
             return () => {
-                subscription.unsubscribe();
+                subscr.unsubscribe();
             };
         }
     }, [isConnected, stompClient, currentChat]);
 
-    // Effect to handle sending a new message via WebSocket
     useEffect(() => {
-        if (message.newMessage && stompClient && isConnected) {
+        if (stompClient && message.newMessage && isConnected) {
             stompClient.send("/app/message", {}, JSON.stringify(message.newMessage));
             setMessages((prevMessages) => [...prevMessages, message.newMessage]);
         }
@@ -183,7 +170,7 @@ const HomePage = () => {
 
     const handleClickOnChatCard = (userId) => {
         dispatch(createChat({ token, data: userId }));
-        setQuerys(null);
+        setQueries(null);
     }
 
     useEffect(() => {
@@ -266,7 +253,6 @@ const HomePage = () => {
         }
     }, [token])
 
-    // Effect to update lastMessages when messages change
     useEffect(() => {
         const prevLastMessages = { ...lastMessages };
         if (message.messages && message.messages.length > 0) {
@@ -313,7 +299,7 @@ const HomePage = () => {
 
     const stopVoiceInput = () => {
         console.log(transcript)
-        if(content === "") {
+        if (content === "") {
             setContent(transcript);
         }
         else {
@@ -328,7 +314,7 @@ const HomePage = () => {
             <div className='w-full py-14 bg-[#724bb9]'></div>
             <div className='flex bg-[#282828] h-[90vh] absolute top-[5vh] left-[2vw] w-[96vw]'>
                 <div className='left w-[30%] bg-[#717171] h-full'>
-                    {/* profile */}
+                    {/* -profile- */}
 
                     {isGroup && <CreateGroup setIsGroup={setIsGroup} />}
                     {isProfile && <div className='w-full h-full'><Profile handleCloseOpenProfile={handleCloseOpenProfile} /></div>}
@@ -337,7 +323,7 @@ const HomePage = () => {
                         && <div className='w-full'>
 
 
-                            {/* home */}
+                            {/* -home- */}
 
                             <div className='flex justify-between items-center p-3'>
                                 <div onClick={handleNavigate} className='flex items-center space-x-3'>
@@ -354,9 +340,9 @@ const HomePage = () => {
                                     <div>
                                         <BsThreeDotsVertical
                                             id="basic-button"
-                                            aria-controls={open ? 'basic-menu' : undefined}
+                                            aria-controls={openMain ? 'basic-menu' : undefined}
                                             aria-haspopup="true"
-                                            aria-expanded={open ? 'true' : undefined}
+                                            aria-expanded={openMain ? 'true' : undefined}
                                             onClick={handleClickMain}
                                             className='fill-[#312d36]' />
                                         <Menu
@@ -389,11 +375,11 @@ const HomePage = () => {
                                     type="text"
                                     placeholder='Шукати або почати новий чат'
                                     onChange={(e) => {
-                                        setQuerys(e.target.value)
+                                        setQueries(e.target.value)
                                         handleSearch(e.target.value)
 
                                     }}
-                                    value={querys}
+                                    value={queries}
                                 />
                                 <AiOutlineSearch className='left-5 top-7 absolute fill-[#312d36]' />
                                 <div>
@@ -401,9 +387,9 @@ const HomePage = () => {
                                 </div>
                             </div>
 
-                            {/*all user */}
+                            {/*-all user- */}
                             <div className='bg-[#1c1821] overflow-y-scroll h-[72vh] px-3'>
-                                {querys &&
+                                {queries &&
                                     Array.from(auth.searchUser)?.map((item) => (
                                         <div onClick={() => handleClickOnChatCard(item.id)}>
                                             <hr />
@@ -421,7 +407,7 @@ const HomePage = () => {
                                         </div>
                                     ))
                                 }
-                                {chat.chats?.length > 0 && !querys &&
+                                {chat.chats?.length > 0 && !queries &&
                                     chat.chats?.map((item) => {
                                         console.log("CHATS: ", chat.chats);
                                         console.log("Is group ", item.group);
@@ -470,7 +456,7 @@ const HomePage = () => {
                 </div>
 
 
-                {/*default chatapp page */}
+                {/*-default chatapp page-*/}
                 {!currentChat && <div className='w-[70%] flex flex-col items-center justify-center h-full'>
                     <div className='max-w-[70%] text-center'>
                         <img src="/images/ChatifyLogo.png" alt="" />
@@ -482,7 +468,7 @@ const HomePage = () => {
                 </div>
                 }
 
-                {/*message part */}
+                {/*-message part-*/}
 
                 {currentChat &&
                     <div className='w-[70%] relative bg-[#1c1821]'>
@@ -507,9 +493,9 @@ const HomePage = () => {
                                         <div>
                                             <BsThreeDotsVertical
                                                 id="chat-button"
-                                                aria-controls={open ? 'chat-menu' : undefined}
+                                                aria-controls={openChat ? 'chat-menu' : undefined}
                                                 aria-haspopup="true"
-                                                aria-expanded={open ? 'true' : undefined}
+                                                aria-expanded={openChat ? 'true' : undefined}
                                                 onClick={handleClickChat} />
                                             <Menu
                                                 id="chat-menu"
@@ -531,7 +517,7 @@ const HomePage = () => {
                                 </div>
                             </div>
                         </div>
-                        {/* message section */}
+                        {/*-message section-*/}
                         <div className='px-10 h-[85vh] overflow-y-scroll pb-10' ref={messageContainerRef}>
                             <div className='space-y-1 flex flex-col justify-center mt-20 py-2'>
                                 {message.messages.length > 0 &&
@@ -553,20 +539,16 @@ const HomePage = () => {
                                                 theme="dark"
                                                 categories={categoryConfig}
                                                 previewConfig={{
-                                                    defaultEmoji: "1f601", // Change the default emoji (e.g., grinning face)
-                                                    defaultCaption: "Який у вас настрій?", // Custom message in Ukrainian
-                                                    showPreview: true // Set to false to hide the preview
+                                                    defaultEmoji: "1f601",
+                                                    defaultCaption: "Який у вас настрій?",
+                                                    showPreview: true
                                                 }}
                                                 searchPlaceholder="Шукати" />
-                                            {/* <IoClose
-                                                className="cursor-pointer"
-                                                onClick={toggleEmojiPicker}
-                                                style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '24px' }} /> */}
                                         </div>
                                     )}
                             </div>
                         </div>
-                        {/*  footer part*/}
+                        {/*-footer part-*/}
                         <div className='footer bg-[#47444c] absolute bottom-0 w-full py-3 text-2xl'>
                             <div className='flex justify-between items-center px-5 relative'>
                                 <BsEmojiSmile className='cursor-pointer' onClick={toggleEmojiPicker} />
@@ -589,7 +571,7 @@ const HomePage = () => {
                                 />
                                 {!isListening && <BsMicFill onClick={startStopListening} />
                                 }
-                                {isListening && <BsFillStopFill onClick={startStopListening}/>
+                                {isListening && <BsFillStopFill onClick={startStopListening} />
                                 }
                             </div>
                         </div>

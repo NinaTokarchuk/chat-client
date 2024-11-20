@@ -1,6 +1,6 @@
 import React from "react"
 
-const ChatCard = ({ userImg, name, lastMessage }) => {
+const ChatComponent = ({ userImg, name, lastMessage }) => {
 
     const formatTimestamp = (timestamp) => {
         if (!timestamp) return "";
@@ -37,4 +37,4 @@ const ChatCard = ({ userImg, name, lastMessage }) => {
     )
 }
 
-export default ChatCard
+export default ChatComponent

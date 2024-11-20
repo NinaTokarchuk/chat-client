@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useDispatch, useSelector } from "react-redux";
-import { currentUser, register } from "../../Redux/Auth/Action";
+import { currentUser, register } from "../../Redux/AuthRedux/Action";
 
 const Signup = () => {
     const [openSnackBar, setOpenSnackBar] = useState(false);

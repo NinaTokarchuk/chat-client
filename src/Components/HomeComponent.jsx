@@ -4,17 +4,17 @@ import { AiOutlineSearch } from 'react-icons/ai'
 import { BiCommentDetail } from 'react-icons/bi'
 import { BsEmojiSmile, BsFilter, BsMicFill, BsFillStopFill, BsThreeDotsVertical } from 'react-icons/bs'
 import { TbCircleDashed } from 'react-icons/tb'
-import ChatCard from './ChatCard/ChatCard'
+import ChatComponent from './ChatComponent/ChatComponent'
 import MessageCard from './MessageCard/MessageCard'
 import { ImAttachment } from 'react-icons/im'
-import "./HomePage.css"
+import "./HomeComponent.css"
 import { useNavigate } from 'react-router-dom'
 import Profile from './Profile/Profile'
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import CreateGroup from './Group/CreateGroup'
 import { useDispatch, useSelector } from 'react-redux'
-import { currentUser, logout, searchUser } from '../Redux/Auth/Action'
+import { currentUser, logout, searchUser } from '../Redux/AuthRedux/Action'
 import { createChat, getUsersChat, deleteChat } from '../Redux/Chat/Action'
 import { createMessage, getAllMessages } from '../Redux/Message/Action'
 import SockJs from "sockjs-client/dist/sockjs";
@@ -22,7 +22,7 @@ import { over } from 'stompjs'
 import EmojiPicker from 'emoji-picker-react';
 import VoiceToChat from './VoiceToChat/VoiceToChat'
 
-const HomePage = () => {
+const HomeComponent = () => {
     const { auth, chat, message } = useSelector(state => state);
     const [stompClient, setStompClient] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
@@ -393,7 +393,7 @@ const HomePage = () => {
                                     Array.from(auth.searchUser)?.map((item) => (
                                         <div onClick={() => handleClickOnChatCard(item.id)}>
                                             <hr />
-                                            <ChatCard
+                                            <ChatComponent
                                                 name={item.fullName}
                                                 userImg={
                                                     item.profilePicture || "/images/userIcon.png"
@@ -416,7 +416,7 @@ const HomePage = () => {
                                             <div onClick={() => handleCurrentChat(item)}>
                                                 <hr />
                                                 {item.group ? (
-                                                    <ChatCard
+                                                    <ChatComponent
                                                         name={item.chatName}
                                                         userImg={item.chatImage || "/images/userIcon.png"}
                                                         lastMessage={{
@@ -426,7 +426,7 @@ const HomePage = () => {
                                                         }}
                                                     />)
                                                     : (
-                                                        <ChatCard
+                                                        <ChatComponent
                                                             isChat={true}
                                                             name={
                                                                 auth.reqUser.id !== item.users[0]?.id
@@ -583,4 +583,4 @@ const HomePage = () => {
 
 };
 
-export default HomePage
+export default HomeComponent

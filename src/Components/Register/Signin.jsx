@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { clearLoginError, currentUser, login } from "../../Redux/Auth/Action";
+import { clearLoginError, currentUser, login } from "../../Redux/AuthRedux/Action";
 import { useDispatch, useSelector } from "react-redux";
 
 const Signin = () => {

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import SelectedMember from "./SelectedMember";
-import ChatCard from "../ChatCard/ChatCard";
+import ChatComponent from "../ChatComponent/ChatComponent";
 import NewGroup from "./NewGroup";
 import { useDispatch, useSelector } from "react-redux";
-import { searchUser } from "../../Redux/Auth/Action";
+import { searchUser } from "../../Redux/AuthRedux/Action";
 import { useNavigate } from "react-router-dom";
 
 const CreateGroup = ({ setIsGroup }) => {
@@ -70,7 +70,7 @@ const CreateGroup = ({ setIsGroup }) => {
                                         key={item?.id}
                                     >
                                         <hr />
-                                        <ChatCard userImg={item.profilePicture} name={item.fullName} />
+                                        <ChatComponent userImg={item.profilePicture} name={item.fullName} />
                                     </div>
                                 )
                                 )}

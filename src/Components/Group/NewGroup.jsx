@@ -11,13 +11,17 @@ const NewGroup = ({ groupMember, setIsGroup }) => {
     const dispatch = useDispatch();
     const token = localStorage.getItem("token");
 
+    const API_URL = "https://api.cloudinary.com/v1_1/dptvtq1ua";
+    const CLOUD_NAME = "dptvtq1ua";
+    const PRESET_NAME = "ml_default";
+
     const uploadToCloudnary = (pics) => {
         setIsImageUploading(true);
         const data = new FormData();
         data.append("file", pics);
-        data.append("upload_preset", "ml_default");
-        data.append("cloud_name", "dptvtq1ua");
-        fetch("https://api.cloudinary.com/v1_1/dptvtq1ua/image/upload", {
+        data.append("upload_preset", PRESET_NAME);
+        data.append("cloud_name", CLOUD_NAME);
+        fetch(API_URL + "/image/upload", {
             method: "post",
             body: data
         })

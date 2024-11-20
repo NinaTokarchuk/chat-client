@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BsArrowLeft, BsCheck2, BsPencil } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
-import { updateUser } from "../../Redux/Auth/Action";
+import { updateUser } from "../../Redux/AuthRedux/Action";
 
 const Profile = ({ handleCloseOpenProfile }) => {
     const [flag, setFlag] = useState(false);

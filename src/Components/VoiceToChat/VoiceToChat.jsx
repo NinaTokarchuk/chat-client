@@ -23,7 +23,6 @@ const VoiceToChat = () => {
       speechRecognitionList.addFromString(grammar, 1);
       recognition.grammars = speechRecognitionList;
     }
-  };
 
     recognition.onresult = (event) => {
       let text = "";

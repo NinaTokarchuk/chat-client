@@ -1,6 +1,6 @@
 import { applyMiddleware, combineReducers, legacy_createStore } from "redux";
 import { thunk } from "redux-thunk";
-import { authReducer } from "./Auth/Reducer";
+import { authReducer } from "./AuthRedux/Reducer";
 import { chatReducer } from "./Chat/Reducer";
 import { messageReducer } from "./Message/Reducer";
 

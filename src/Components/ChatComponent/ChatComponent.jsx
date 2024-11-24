@@ -1,5 +1,5 @@
 import React from "react"
-
+import { useEffect } from "react";
 const ChatComponent = ({ userImg, name, lastMessage }) => {
 
     const formatTimestamp = (timestamp) => {
@@ -16,6 +16,7 @@ const ChatComponent = ({ userImg, name, lastMessage }) => {
         };
         return new Date(timestamp).toLocaleDateString(undefined, options);
     };
+
     return (
         <div className="flex items-center justify-center py-2 group cursor-pointer">
             <div className="w-[20%]">

@@ -3,8 +3,8 @@ import { LOGIN, LOGOUT, REGISTER, REQ_USER, SEARCH_USER, UPDATE_USER, LOGIN_FAIL
 
 export const register = (data) => async (dispatch) => {
     try {
+        console.log("Base API URL:", BASE_API_URL);
         const res = await fetch(`${BASE_API_URL}/auth/signup`, {
-
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -20,7 +20,6 @@ export const register = (data) => async (dispatch) => {
         console.log("catch error: ", error)
     }
 }
-
 export const login = (data) => async (dispatch) => {
     try {
         const res = await fetch(`${BASE_API_URL}/auth/signin`, {

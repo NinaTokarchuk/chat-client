@@ -1,0 +1,18 @@
+@media (max-width: 768px) {
+    .signin-container {
+        width: 90%;
+        padding: 1rem;
+    }
+
+    .signin-form {
+        padding: 1rem;
+    }
+
+    .signin-input {
+        padding: 0.5rem;
+    }
+
+    .signin-button {
+        padding: 0.5rem;
+    }
+}

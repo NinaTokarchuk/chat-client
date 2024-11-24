@@ -1,26 +1,25 @@
 
-import React, { useEffect, useState, useRef } from 'react'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import EmojiPicker from 'emoji-picker-react'
+import React, { useEffect, useRef, useState } from 'react'
 import { AiOutlineSearch } from 'react-icons/ai'
-import { BiCommentDetail } from 'react-icons/bi'
-import { BsEmojiSmile, BsFilter, BsMicFill, BsFillStopFill, BsThreeDotsVertical } from 'react-icons/bs'
-import { TbCircleDashed } from 'react-icons/tb'
-import ChatComponent from './ChatComponent/ChatComponent'
-import MessageCard from './MessageCard/MessageCard'
-import { ImAttachment } from 'react-icons/im'
-import "./HomeComponent.css"
-import { useNavigate } from 'react-router-dom'
-import Profile from './Profile/Profile'
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import CreateGroup from './Group/CreateGroup'
+import { BsEmojiSmile, BsFillStopFill, BsMicFill, BsThreeDotsVertical } from 'react-icons/bs'
+import { IoIosSend } from "react-icons/io"
 import { useDispatch, useSelector } from 'react-redux'
-import { currentUser, logout, searchUser } from '../Redux/AuthRedux/Action'
-import { createChat, getUsersChat, deleteChat } from '../Redux/Chat/Action'
-import { createMessage, getAllMessages } from '../Redux/Message/Action'
-import SockJs from "sockjs-client/dist/sockjs";
+import { useNavigate } from 'react-router-dom'
+import SockJs from "sockjs-client/dist/sockjs"
 import { over } from 'stompjs'
-import EmojiPicker from 'emoji-picker-react';
+import { currentUser, logout, searchUser } from '../Redux/AuthRedux/Action'
+import { createChat, deleteChat, getUsersChat } from '../Redux/Chat/Action'
+import { createMessage, getAllMessages } from '../Redux/Message/Action'
+import ChatComponent from './ChatComponent/ChatComponent'
+import CreateGroup from './Group/CreateGroup'
+import "./HomeComponent.css"
+import MessageCard from './MessageCard/MessageCard'
+import Profile from './Profile/Profile'
 import VoiceToChat from './VoiceToChat/VoiceToChat'
+import { IoIosArrowBack } from "react-icons/io";
 
 const HomeComponent = () => {
     const { auth, chat, message } = useSelector(state => state);
@@ -88,7 +87,8 @@ const HomeComponent = () => {
     }, [messages]);
 
     const connect = () => {
-        const sock = new SockJs("http://localhost:8080/ws");
+        console.log("REACT_APP_BASE_API_URL:", `${process.env.REACT_APP_BASE_API_URL}/ws`);
+        const sock = new SockJs(`http://localhost:8080s/ws`);
         const stomp = over(sock);
         setStompClient(stomp);
 
@@ -117,9 +117,11 @@ const HomeComponent = () => {
 
         if (stompClient && currentChat) {
             if (!currentChat.isGroupChat) {
+                console.log("subscribed to user")
                 stompClient
                     .subscribe(`/user/${currentChat?.id}`, onMessageReceive);
             } else {
+                console.log("subscribed to group")
                 stompClient
                     .subscribe(`/group/${currentChat?.id}`, onMessageReceive);
             }
@@ -149,6 +151,7 @@ const HomeComponent = () => {
 
     useEffect(() => {
         if (stompClient && message.newMessage && isConnected) {
+            console.log("connected to websocket")
             stompClient.send("/app/message", {}, JSON.stringify(message.newMessage));
             setMessages((prevMessages) => [...prevMessages, message.newMessage]);
         }
@@ -267,6 +270,11 @@ const HomeComponent = () => {
     const handleCurrentChat = (item) => {
         setCurrentChat(item);
     }
+
+    const handleBackToMainPage = () => {
+        setCurrentChat(null);
+    }
+
     const formatTimestamp = (timestamp) => {
         if (!timestamp) return "";
 
@@ -291,7 +299,7 @@ const HomeComponent = () => {
         setShowEmojiPicker(!showEmojiPicker);
     };
 
-    const { isListening, transcript, startListening, stopListening } = VoiceToChat({ continuous: false });
+    const { isListening, transcript, startListening, stopListening } = VoiceToChat({ continuous: true });
 
     const startStopListening = () => {
         isListening ? stopVoiceInput() : startListening();
@@ -300,9 +308,11 @@ const HomeComponent = () => {
     const stopVoiceInput = () => {
         console.log(transcript)
         if (content === "") {
+            console.log("INSIDE content === ")
             setContent(transcript);
         }
         else {
+            console.log("INSIDE ")
             setContent(content + " " + transcript);
         }
         console.log("content: ", content);
@@ -312,8 +322,9 @@ const HomeComponent = () => {
     return (
         <div className='relative'>
             <div className='w-full py-14 bg-[#724bb9]'></div>
-            <div className='flex bg-[#282828] h-[90vh] absolute top-[5vh] left-[2vw] w-[96vw]'>
-                <div className='left w-[30%] bg-[#717171] h-full'>
+            {/*  */}
+            <div className='flex bg-[#282828] h-[90vh] absolute justify-center top-[5vh] left-[2vw] w-[96vw]'>
+                <div className={(currentChat ? 'chat-active-left' : 'chat-inactive-left') + " w-[30%] bg-[#312d36] h-full"}>
                     {/* -profile- */}
 
                     {isGroup && <CreateGroup setIsGroup={setIsGroup} />}
@@ -332,11 +343,9 @@ const HomeComponent = () => {
                                         src={auth.reqUser?.profilePicture || "/images/userIcon.png"}
                                         alt=""
                                     />
-                                    <p className='text-[#312d36]'>{auth.reqUser?.fullName}</p>
+                                    <p className='text-[#717171]'>{auth.reqUser?.fullName}</p>
                                 </div>
                                 <div className='space-x-3 text-2xl flex'>
-                                    <TbCircleDashed onClick={() => navigate("/status")} className='stroke-[#312d36] cursor-pointer' />
-                                    <BiCommentDetail className='fill-[#312d36]' />
                                     <div>
                                         <BsThreeDotsVertical
                                             id="basic-button"
@@ -344,7 +353,7 @@ const HomeComponent = () => {
                                             aria-haspopup="true"
                                             aria-expanded={openMain ? 'true' : undefined}
                                             onClick={handleClickMain}
-                                            className='fill-[#312d36]' />
+                                            className='fill-[#717171]' />
                                         <Menu
                                             id="basic-menu"
                                             anchorEl={anchorElMain}
@@ -371,7 +380,7 @@ const HomeComponent = () => {
 
                             <div className='relative flex justify-center items-center text-[#8b8b8b] bg-[#1c1821] py-4 px-3'>
                                 <input
-                                    className='border-none outline-none bg-[#717171] placeholder:text-[#312d36] rounded-md w-[93%] pl-9 py-2'
+                                    className='border-none outline-none bg-[#717171] placeholder:text-[#312d36] rounded-md w-[100%] pl-9 py-2'
                                     type="text"
                                     placeholder='Шукати або почати новий чат'
                                     onChange={(e) => {
@@ -382,9 +391,9 @@ const HomeComponent = () => {
                                     value={queries}
                                 />
                                 <AiOutlineSearch className='left-5 top-7 absolute fill-[#312d36]' />
-                                <div>
+                                {/* <div>
                                     <BsFilter className='ml-4 text-3xl' />
-                                </div>
+                                </div> */}
                             </div>
 
                             {/*-all user- */}
@@ -453,11 +462,12 @@ const HomeComponent = () => {
 
                         </div>
                     }
+
                 </div>
 
 
                 {/*-default chatapp page-*/}
-                {!currentChat && <div className='w-[70%] flex flex-col items-center justify-center h-full'>
+                {!currentChat && <div className='chat-main-text w-[70%] flex flex-col items-center justify-center h-full'>
                     <div className='max-w-[70%] text-center'>
                         <img src="/images/ChatifyLogo.png" alt="" />
                         <h1 className='text-4xl text-[#835ec1]'>Чат застосунок</h1>
@@ -471,10 +481,11 @@ const HomeComponent = () => {
                 {/*-message part-*/}
 
                 {currentChat &&
-                    <div className='w-[70%] relative bg-[#1c1821]'>
+                    <div className={(currentChat ? 'chat-active-right' : 'chat-inactive-right') + ' w-[70%] relative bg-[#1c1821]'}>
                         <div className='header absolute top-0 w-full bg-[#282828]'>
                             <div className='flex justify-between'>
                                 <div className='py-3 space-x-4 flex items-center px-3'>
+                                    <IoIosArrowBack onClick={handleBackToMainPage}/>
                                     <img className='w-10 h-10 rounded-full'
                                         src={currentChat.group ? currentChat?.chatImage || "/images/userIcon.png"
                                             : (auth.reqUser?.id !== currentChat?.users[0]?.id
@@ -534,8 +545,9 @@ const HomeComponent = () => {
                                 {
                                     showEmojiPicker && (
                                         <div ref={messageContainerRef}>
-                                            <EmojiPicker onEmojiClick={e => handleEmojiClick(e)}
-                                                pickerStyle={{ position: 'absolute', bottom: '50px', right: '0px' }}
+                                            <EmojiPicker
+                                                onEmojiClick={e => handleEmojiClick(e)}
+                                                pickerStyle={{ width: '30%', position: 'absolute', bottom: '7%', left: '2rem' }}
                                                 theme="dark"
                                                 categories={categoryConfig}
                                                 previewConfig={{
@@ -543,19 +555,20 @@ const HomeComponent = () => {
                                                     defaultCaption: "Який у вас настрій?",
                                                     showPreview: true
                                                 }}
+                                                // reactionsDefaultOpen={true}
                                                 searchPlaceholder="Шукати" />
                                         </div>
-                                    )}
+                                    )
+                                }
                             </div>
                         </div>
                         {/*-footer part-*/}
                         <div className='footer bg-[#47444c] absolute bottom-0 w-full py-3 text-2xl'>
                             <div className='flex justify-between items-center px-5 relative'>
                                 <BsEmojiSmile className='cursor-pointer' onClick={toggleEmojiPicker} />
-                                <ImAttachment />
                                 <textarea
                                     rows='1'
-                                    className='py-2 outline-none border-none bg-white pl-4 rounded-md w-[85%]'
+                                    className='textarea py-2 outline-none border-none bg-white pl-4 rounded-md w-[85%]'
                                     type='text'
                                     onChange={(e) => setContent(e.target.value)}
                                     placeholder='Введіть повідомлення'
@@ -569,12 +582,17 @@ const HomeComponent = () => {
                                         }
                                     }}
                                 />
+                                <IoIosSend onClick={() => {
+                                    handleCreateNewMessage();
+                                    setContent("");
+                                }} />
                                 {!isListening && <BsMicFill onClick={startStopListening} />
                                 }
                                 {isListening && <BsFillStopFill onClick={startStopListening} />
                                 }
                             </div>
                         </div>
+
                     </div>
                 }
             </div>

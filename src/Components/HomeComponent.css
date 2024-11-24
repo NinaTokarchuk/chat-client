@@ -5,3 +5,61 @@
 ::-webkit-scrollbar-thumb{
     background-color : gray;
 }
+
+
+@media (max-width: 768px) {
+    .chat-main-text {
+        display: none;
+    }
+
+    .chat-inactive-left {
+        width: 100%;
+    }
+    
+    .chat-active-left {
+        display: none;
+    }
+
+    .chat-active-right {
+        width: 100%;
+    }
+
+    .chat-inactive-right {
+        display: none;
+    }
+
+    .textarea {
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
+
+}
+
+
+@media (max-width: 768px) {
+    .chat-main-text {
+        display: none;
+    }
+
+    .chat-inactive-left {
+        width: 100%;
+    }
+    
+    .chat-active-left {
+        display: none;
+    }
+
+    .chat-active-right {
+        width: 100%;
+    }
+
+    .chat-inactive-right {
+        display: none;
+    }
+
+    .textarea {
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
+
+}

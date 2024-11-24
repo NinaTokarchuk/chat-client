@@ -1,5 +1,5 @@
 import { Avatar, Button, CircularProgress } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BsArrowLeft, BsCheck2 } from "react-icons/bs";
 import { useDispatch } from "react-redux";
 import { createGroupChat } from "../../Redux/Chat/Action";
@@ -56,7 +56,7 @@ const NewGroup = ({ groupMember, setIsGroup }) => {
     const handleClick = () => {
         setIsGroup(false);
     }
-
+    
     return (
         <div className="w-full h-full">
             <div className="flex items-center space-x-10 bg-[#724bb9] text-white pt-16 px-10 pb-5">

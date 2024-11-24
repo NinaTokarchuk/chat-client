@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import SelectedMember from "./SelectedMember";
 import ChatComponent from "../ChatComponent/ChatComponent";
@@ -27,6 +27,7 @@ const CreateGroup = ({ setIsGroup }) => {
         setIsGroup(false);
         navigate("/")
     }
+    
     return (
         <div className="w-full h-full bg-[#1c1821]">
             {
